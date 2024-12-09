@@ -2,6 +2,157 @@
 
 {% block content %}
     <div class="w-full max-w-7xl mx-auto my-8">
-        <h1 class="text-xl">Hello World</h1>
+        <div class="mb-8 space-y-2">
+
+            {% if prediction %}
+                <a class="inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline focus:outline-none focus:underline"
+                   href="/" target="_parent">
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"></path>
+                    </svg>
+                    Back to Home
+                </a>
+
+                <h1 class="text-3xl font-bold">Prediction results</h1>
+            {% else %}
+                <h1 class="text-3xl font-bold">Please select an image to processing</h1>
+            {% endif %}
+            <p class="text-gray-500 text-sm">Architectural Styles MobileNet V2</p>
+        </div>
+
+        {% if not prediction %}
+            <form class="space-y-2 max-w-sm mb-8" method="POST" enctype="multipart/form-data">
+                <input type="file" name="image" accept="image/*" required class="block w-full border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none
+                file:bg-gray-50 file:border-0 file:me-4 file:py-3 file:px-4">
+
+                <button class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                        type="submit">
+                    Submit
+                </button>
+            </form>
+        {% else %}
+            <div class="space-y-2">
+                <p>
+                    <span class="font-medium">Class:</span>
+                    <span class="text-gray-600 uppercase">{{ prediction.msg.class }}</span>
+                </p>
+
+                <p>
+                    <span class="font-medium">Probability:</span>
+                    <span class="text-gray-600 uppercase">{{ (prediction.probs|float) * 100 }}%</span>
+                </p>
+
+                <div>
+                    <p class="font-medium">Description:</p>
+                    <p class="text-gray-600">{{ prediction.msg.description }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+
+        {% if image or prediction %}
+            <div class="space-y-4 py-8">
+                {% if image %}
+                    <div>
+                        <button type="button"
+                                class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                                id="hs-show-hide-collapse" aria-expanded="false"
+                                data-hs-collapse="#hs-show-hide-collapse-heading-3">
+                            <span class="hs-collapse-open:hidden">Show image</span>
+                            <span class="hs-collapse-open:block hidden">Hide image</span>
+                            <svg class="hs-collapse-open:rotate-180 shrink-0 size-4" xmlns="http://www.w3.org/2000/svg"
+                                 width="24"
+                                 height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </button>
+
+                        <div id="hs-show-hide-collapse-heading-3"
+                             class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+                             aria-labelledby="hs-show-hide-collapse">
+
+                            <div class="mt-4">
+                                <a href="data:image/png;base64,{{ image }}" target="_blank">
+                                    <img class="border w-[32rem]" src="data:image/png;base64,{{ image }}"
+                                         alt="Detected Image"/>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if prediction %}
+                    <div>
+                        <button type="button"
+                                class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                                id="hs-show-hide-collapse" aria-expanded="false"
+                                data-hs-collapse="#hs-show-hide-collapse-heading-2">
+                            <span class="hs-collapse-open:hidden">Show server response</span>
+                            <span class="hs-collapse-open:block hidden">Hide server response</span>
+                            <svg class="hs-collapse-open:rotate-180 shrink-0 size-4" xmlns="http://www.w3.org/2000/svg"
+                                 width="24"
+                                 height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </button>
+
+                        <div id="hs-show-hide-collapse-heading-2"
+                             class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+                             aria-labelledby="hs-show-hide-collapse">
+
+                            <div class="mt-4">
+                                <pre class="text-wrap w-full bg-gray-100 rounded-lg px-4 py-2">{{ prediction }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <p class="pt-6 border-t">
+            <button type="button"
+                    class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                    id="hs-show-hide-collapse" aria-expanded="false" aria-controls="hs-show-hide-collapse-heading"
+                    data-hs-collapse="#hs-show-hide-collapse-heading">
+                <span class="hs-collapse-open:hidden">Show metrics</span>
+                <span class="hs-collapse-open:block hidden">Hide metrics</span>
+                <svg class="hs-collapse-open:rotate-180 shrink-0 size-4" xmlns="http://www.w3.org/2000/svg"
+                     width="24"
+                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6"></path>
+                </svg>
+            </button>
+        </p>
+
+        <div id="hs-show-hide-collapse-heading"
+             class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+             aria-labelledby="hs-show-hide-collapse">
+
+            <div class="mt-4">
+                <div class="mb-4 border-b">
+                    {% for key, value in metrics|items %}
+                        <p>
+                            <span class="font-medium">{{ key }}:</span>
+                            <span class="text-gray-800">{{ (value*100)|round(2) }}%</span>
+                        </p>
+                    {% endfor %}
+
+                    <a class="block" href="/static/confusion_matrix.png" target="_blank">
+                        <img class="max-w-full" src="/static/confusion_matrix.png">
+                    </a>
+                </div>
+
+
+                <a href="/static/accuracy_plot.png" target="_blank">
+                    <img class="max-w-full" src="/static/accuracy_plot.png">
+                </a>
+            </div>
+        </div>
+
     </div>
 {% endblock %}

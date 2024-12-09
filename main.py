@@ -1,9 +1,15 @@
-from fastapi import FastAPI
+import base64
+
+from fastapi import FastAPI, File
 from starlette.requests import Request
+from starlette.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+from typing_extensions import Annotated
 
+from helpers import get_metrics
 from routers import api
+from routers.api import api_classification
 
 app = FastAPI(
     title="ML Course Project Api",
@@ -20,6 +26,8 @@ templates = Jinja2Templates(directory="templates")
 
 app.include_router(api.router, prefix="/api/v1")
 
+metrics = get_metrics()
+
 
 def common_context():
     return {
@@ -32,6 +40,25 @@ def common_context():
 async def index(request: Request):
     context = {
         'title': 'Home',
+        'metrics': metrics,
+        **common_context(),
+    }
+
+    return templates.TemplateResponse(
+        request=request, name="index.html",
+        context=context
+    )
+
+
+@app.post('/', include_in_schema=False)
+async def index_post(request: Request, image: Annotated[bytes, File()]):
+    if not image: return RedirectResponse(url='/', status_code=301)
+
+    context = {
+        'title': 'Home | Results',
+        'prediction': await api_classification(image),
+        'metrics': metrics,
+        'image': base64.b64encode(image).decode(),
         **common_context(),
     }
 
