@@ -1,6 +1,9 @@
 import base64
+import os
 
+import dotenv
 from fastapi import FastAPI, File
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
@@ -11,6 +14,10 @@ from helpers import get_metrics
 from routers import api
 from routers.api import api_classification
 
+dotenv.load_dotenv()
+
+ALLOWED_HOST = os.getenv("ALLOWED_HOST", '*')
+
 app = FastAPI(
     title="ML Course Project Api",
     description="Magankov K.S (IVT-301) © 2024",
@@ -19,6 +26,11 @@ app = FastAPI(
         "url": "https://t.me/zntnaxbi_mk",
     },
     version="1.0"
+)
+
+app.add_middleware(
+    TrustedHostMiddleware,  # noqa
+    allowed_hosts=ALLOWED_HOST.split(',')
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
